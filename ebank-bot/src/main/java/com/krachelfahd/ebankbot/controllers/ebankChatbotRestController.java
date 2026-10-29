@@ -1,6 +1,8 @@
 package com.krachelfahd.ebankbot.controllers;
 
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -9,8 +11,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class ebankChatbotRestController {
     private ChatClient chatClient;
 
-    public ebankChatbotRestController(ChatClient.Builder chatClient) {
-        this.chatClient = chatClient.build();
+    public ebankChatbotRestController(ChatClient.Builder chatClient, ChatMemory chatMemory) {
+        this.chatClient = chatClient
+                .defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory).build())
+                .build();
     }
 
     @GetMapping("/chat")

@@ -10,7 +10,7 @@ public class EbankChatbotRestController {
     private EbankAgent ebankAgent;
 
     public EbankChatbotRestController(EbankAgent ebankAgent) {
-        this.ebankAIAgent = ebankAIAgent;
+        this.ebankAgent = ebankAgent;
     }
 
     @GetMapping("/chat")

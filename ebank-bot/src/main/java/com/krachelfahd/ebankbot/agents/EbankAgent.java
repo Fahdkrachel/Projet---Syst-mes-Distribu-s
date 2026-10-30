@@ -5,26 +5,45 @@ import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 
 @Service
 public class EbankAgent {
-    private ChatClient chatClient;
+    private final ChatClient chatClient;
 
-    public EbankAgent(ChatClient.Builder chatClient, ChatMemory chatMemory, ToolCallbackProvider tools) {
-        this.chatClient = chatClient
+    public EbankAgent(ChatClient.Builder chatClientBuilder,
+                      ChatMemory chatMemory,
+                      ToolCallbackProvider tools) {
+
+        this.chatClient = chatClientBuilder
                 .defaultSystem("""
-                         Vous un assistant qui se charge de répondre aux question
-                         de l'utilisateur en fonction du contexte fourni a propo des cliennts et des compte banciare.
-                         Si aucun contexte n'est fourni, répond avec JE NE SAIS PAS
-                         """)
+                        Vous êtes un assistant qui répond aux questions
+                        concernant les clients et les comptes bancaires,
+                        en fonction du contexte fourni.
+                        Si aucun contexte n'est fourni,
+                        répondez par JE NE SAIS PAS.
+                        """)
                 .defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory).build())
                 .defaultTools(tools)
                 .build();
     }
 
 
-    public String chat( String query){
-        return chatClient.prompt(query).call().content();
+    public String chat(String query, String conversationId) {
+        return chatClient.prompt()
+                .user(query)
+                .advisors(spec -> spec.param(ChatMemory.CONVERSATION_ID, conversationId))
+                .call()
+                .content();
+    }
+
+
+    public Flux<String> chatStream(String query, String conversationId) {
+        return chatClient.prompt()
+                .user(query)
+                .advisors(spec -> spec.param(ChatMemory.CONVERSATION_ID, conversationId))
+                .stream()
+                .content();
     }
 
 

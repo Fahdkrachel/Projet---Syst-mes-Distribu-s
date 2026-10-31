@@ -8,7 +8,7 @@ L'application gère des clients et des comptes bancaires à travers plusieurs mi
 
 ## 1. Architecture
 
-### Architecture cible (schéma du cours)
+### Architecture 
 
 ![Architecture cible](images/01-architecture.png)
 

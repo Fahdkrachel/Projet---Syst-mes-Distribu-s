@@ -1,9 +1,28 @@
-import { Component } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { AsyncPipe } from '@angular/common';
+import { Component, inject } from '@angular/core';
+import { Observable, catchError, map, of } from 'rxjs';
+import { Account, AccountListState, RequestStatus } from '../model/account.model';
+import { LoadingService } from '../services/loading';
 
 @Component({
-  imports: [],
   selector: 'app-accounts',
-  styleUrl: './accounts.css',
+  imports: [AsyncPipe],
   templateUrl: './accounts.html',
+  styleUrl: './accounts.css',
 })
-export class Accounts {}
+export class Accounts {
+  protected readonly RequestStatus = RequestStatus;
+
+  private http = inject(HttpClient);
+  public loadService = inject(LoadingService);
+
+  accounts$: Observable<AccountListState> = this.http
+    .get<Account[]>('http://localhost:9999/EBANK-SERVICE/accounts')
+    .pipe(
+      map((resp) => ({ accounts: resp, status: RequestStatus.SUCCESS })),
+      catchError((err) =>
+        of({ status: RequestStatus.ERROR, errorMessage: err.statusText || 'Erreur de connexion' })
+      )
+    );
+}
